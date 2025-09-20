@@ -25,7 +25,7 @@ The analyses was mainly conducted on Cedar and Niagara HPC supported by the Digi
 
 8. **[Statistical_analyses_visualization.md](https://github.com/rzhan186/gy2021_bioinformatics/blob/main/8.%R_statistical_analyses_visualization.md)** - R scripts for statistical analyses and data 
 
-8. **[Statistical_analyses_visualization.md](https://github.com/rzhan186/gy2021_bioinformatics/blob/main/8.%20R_data_analyses_visualization.md)** - R scripts for statistical analyses and data 
+8. **[Statistical_analyses_visualization.md](https://github.com/rzhan186/gy2021_bioinformatics/blob/main/8.%20R_data_analyses_visualization.md)** - R scripts for statistical analyses and data visualization
 
 
 
