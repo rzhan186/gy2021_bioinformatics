@@ -23,6 +23,7 @@ The analyses was mainly conducted on Cedar and Niagara HPC supported by the Digi
    
 7. **[Transcriptomic_data_processing.md](https://github.com/rzhan186/gy2021_bioinformatics/blob/main/7.%20Transcriptomic_data_processing.md)** - Workflows for processing and analyzing RNA sequencing data.
 
+8. **[Statistical_analyses_visualization.md](https://github.com/rzhan186/gy2021_bioinformatics/blob/main/8.%R_statistical_analyses_visualization.md)** - R scripts for statistical analyses and data visualization
 
 ## Support
 
