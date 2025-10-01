@@ -2,9 +2,6 @@
 
 This GitHub repository contains code for the bioinformatic analyses used in the paper (to be inserted here)
 
-The analyses was mainly conducted on Cedar and Niagara HPC supported by the Digital Research Alliance of Canada. Most of the scripts were developed to be run as batch jobs on Slurm Wokrload Manager.
-
-
 ## Components
 
 1. **[Sequencing data QA:QC.md](https://github.com/rzhan186/gy2021_bioinformatics/blob/main/1.%20Sequencing%20data%20QA%3AQC.md)** - Quality assessment and control procedures for raw sequencing data.
@@ -25,11 +22,4 @@ The analyses was mainly conducted on Cedar and Niagara HPC supported by the Digi
 
 
 
-## Support
 
-For any questions about the bioinformatic pipeline in this study, please open an issue here or contact:
-
-Rui Zhang [rui.zhang@uottawa.ca]() <br>
-Biology Department, University of Ottawa
-
-Please cite the article if you found this repo helpful: <br>
