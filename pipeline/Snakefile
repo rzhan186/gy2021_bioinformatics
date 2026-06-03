@@ -1,0 +1,110 @@
+"""
+GY2021 Paddy Metagenomics Pipeline
+===================================
+QA/QC (FastQC + Fastp) → MEGAHIT co-assembly → multi-binner binning
+(MetaBAT2 + MaxBin2 + VAMB + CONCOCT) → DAS_Tool refinement
+
+Usage
+-----
+Dry-run:
+    snakemake -n --use-conda
+
+Local run (N cores):
+    snakemake --cores 32 --use-conda
+
+SLURM cluster (Compute Canada):
+    snakemake --executor slurm --use-conda \\
+              --workflow-profile cluster/ \\
+              --jobs 50
+
+Requirements
+------------
+- Snakemake >= 7.0
+- conda (or mamba) accessible in PATH
+- Environment YAML files in envs/  (see README for setup)
+"""
+
+configfile: "config/config.yaml"
+
+import pandas as pd
+from pathlib import Path
+
+# ─── Sample metadata ──────────────────────────────────────────────────────────
+samples_df = pd.read_csv(config["samples_file"], sep="\t", index_col="sample")
+SAMPLES = samples_df.index.tolist()
+
+# Build co-assembly group → [sample, ...] mapping from the table
+COASSEMBLY_GROUPS: dict[str, list[str]] = (
+    samples_df.groupby("coassembly_group")
+    .apply(lambda df: df.index.tolist())
+    .to_dict()
+)
+SITES = sorted(COASSEMBLY_GROUPS.keys())
+
+# Flat (site, sample) pairs — used with expand(..., zip, ...)
+SITE_SAMPLE_PAIRS = [
+    (site, sample)
+    for site, samples in COASSEMBLY_GROUPS.items()
+    for sample in samples
+]
+PAIR_SITES   = [p[0] for p in SITE_SAMPLE_PAIRS]
+PAIR_SAMPLES = [p[1] for p in SITE_SAMPLE_PAIRS]
+
+# ─── Wildcard constraints (prevent ambiguous matches) ─────────────────────────
+wildcard_constraints:
+    site   = "|".join(re.escape(s) for s in SITES),
+    sample = "|".join(re.escape(s) for s in SAMPLES),
+
+# ─── Helper functions ─────────────────────────────────────────────────────────
+def raw_r1(wildcards):
+    return samples_df.at[wildcards.sample, "raw_r1"]
+
+def raw_r2(wildcards):
+    return samples_df.at[wildcards.sample, "raw_r2"]
+
+def coassembly_r1(wildcards):
+    return expand(
+        config["out"]["fastp"] + "/{sample}.R1.fq.gz",
+        sample=COASSEMBLY_GROUPS[wildcards.site],
+    )
+
+def coassembly_r2(wildcards):
+    return expand(
+        config["out"]["fastp"] + "/{sample}.R2.fq.gz",
+        sample=COASSEMBLY_GROUPS[wildcards.site],
+    )
+
+def site_sorted_bams(wildcards):
+    return expand(
+        config["out"]["mapping"] + "/{site}/{sample}_sorted.bam",
+        site=wildcards.site,
+        sample=COASSEMBLY_GROUPS[wildcards.site],
+    )
+
+def site_bam_indices(wildcards):
+    return expand(
+        config["out"]["mapping"] + "/{site}/{sample}_sorted.bam.bai",
+        site=wildcards.site,
+        sample=COASSEMBLY_GROUPS[wildcards.site],
+    )
+
+# ─── Rule modules ─────────────────────────────────────────────────────────────
+include: "rules/qc.smk"
+include: "rules/assembly.smk"
+include: "rules/binning.smk"
+
+# ─── Target rule ──────────────────────────────────────────────────────────────
+rule all:
+    input:
+        # ── QA/QC ───────────────────────────────────────────────────────────
+        expand(config["out"]["qc"] + "/raw/{sample}_fastqc.html", sample=SAMPLES),
+        config["out"]["qc"] + "/multiqc_raw/multiqc_report.html",
+        expand(config["out"]["qc"] + "/trimmed/{sample}.R1_fastqc.html", sample=SAMPLES),
+        config["out"]["qc"] + "/multiqc_trimmed/multiqc_report.html",
+        # ── Co-assembly ──────────────────────────────────────────────────────
+        expand(config["out"]["coassembly"] + "/{site}/contigs.filtered.fa", site=SITES),
+        # ── Binning — DAS_Tool summary (proof of completion) ─────────────────
+        expand(
+            config["out"]["bins"] + "/dastool/{site}/dastool_DASTool_summary.txt",
+            site=SITES,
+        ),

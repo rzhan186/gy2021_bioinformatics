@@ -1,0 +1,95 @@
+# ─── GY2021 Metagenomics Pipeline Configuration ───────────────────────────────
+# Adjust directory paths and parameters for your environment.
+# All paths may be absolute or relative to the pipeline/ directory.
+
+# Sample metadata TSV (see config/samples.tsv for format)
+samples_file: "config/samples.tsv"
+
+# ─── Input / output directories ───────────────────────────────────────────────
+raw_dir: "/scratch/ruizhang/2021_guiyang/raw_data/dna"
+
+out:
+  qc:          "/project/def-careg421/ruizhang/2021_guiyang/qc/dna"
+  fastp:       "/project/def-careg421/ruizhang/2021_guiyang/fastp/dna"
+  coassembly:  "/project/def-careg421/ruizhang/2021_guiyang/megahit/co-assembly"
+  mapping:     "/scratch/ruizhang/gy2021/mapping"
+  bins:        "/scratch/ruizhang/gy21_binning"
+
+# ─── Tool parameters ──────────────────────────────────────────────────────────
+params:
+
+  # fastp — trimming (all defaults; add flags here to override)
+  fastp:
+    extra: ""
+
+  # MEGAHIT co-assembly
+  megahit:
+    min_contig_len: 1000
+    presets: "meta-large"    # use "meta-sensitive" for individual assemblies
+    extra: "--no-mercy --kmin-1pass"
+
+  # Contig filtering (anvi-script-reformat-fasta)
+  filter_contigs:
+    min_len: 1000            # minimum contig length in bp
+
+  # BWA mem — read mapping
+  bwa_mem:
+    extra: "-F 0x4"          # discard unmapped reads (samtools view flag)
+
+  # MetaBAT2
+  metabat2:
+    min_contig_len: 1500
+
+  # MaxBin2
+  maxbin2:
+    min_contig_length: 1500
+
+  # VAMB
+  vamb:
+    minfasta:      200000    # minimum bin size in bp (200 kb)
+    min_contig_len: 1000
+    use_cuda: true           # set false if no GPU is available
+
+  # CONCOCT
+  concoct:
+    chunk_size: 2000         # contig chunk size for coverage calculation
+    overlap:    0
+
+  # DAS_Tool
+  dastool:
+    search_engine:   "diamond"
+    score_threshold: 0.5
+    extra: "--write_bins 1 --write_unbinned 1 --create_plots 1"
+
+# ─── Computational resources (used in rules' resources: blocks) ───────────────
+resources:
+  default:
+    cpus: 4
+    mem_mb: 16000
+    runtime: 240          # minutes
+
+  mapping:
+    cpus: 32
+    mem_mb: 125000
+    runtime: 480
+
+  assembly:
+    cpus: 32
+    mem_mb: 250000
+    runtime: 1440
+
+  binning:
+    cpus: 32
+    mem_mb: 125000
+    runtime: 600
+
+  vamb:
+    cpus: 32
+    mem_mb: 125000
+    runtime: 600
+    gpu: 1               # requires 1 GPU (V100 recommended)
+
+  dastool:
+    cpus: 32
+    mem_mb: 125000
+    runtime: 240

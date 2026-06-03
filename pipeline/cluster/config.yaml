@@ -1,0 +1,73 @@
+# ─── Snakemake SLURM cluster profile (Compute Canada) ────────────────────────
+# Usage:
+#   snakemake --profile pipeline/cluster --use-conda --jobs 50
+#
+# Requires snakemake-executor-plugin-slurm:
+#   pip install snakemake-executor-plugin-slurm
+
+executor: slurm
+
+# Default SLURM settings applied to every job unless overridden by the rule
+default-resources:
+  slurm_account:   "def-careg421"
+  slurm_partition: "cpu"
+  runtime:         240         # minutes
+  mem_mb:          16000
+  cpus:            4
+
+# Per-rule SLURM overrides — mirrors the resources: blocks in the rule files
+set-resources:
+
+  megahit_coassembly:
+    runtime:   1440
+    mem_mb:    250000
+    cpus:      32
+
+  bwa_index:
+    runtime:   60
+    mem_mb:    16000
+    cpus:      4
+
+  bwa_map:
+    runtime:   480
+    mem_mb:    125000
+    cpus:      32
+
+  metabat2_depth:
+    runtime:   120
+    mem_mb:    125000
+    cpus:      32
+
+  metabat2:
+    runtime:   600
+    mem_mb:    125000
+    cpus:      32
+
+  maxbin2:
+    runtime:   600
+    mem_mb:    125000
+    cpus:      32
+
+  vamb:
+    runtime:         600
+    mem_mb:          125000
+    cpus:            32
+    slurm_partition: "gpu"
+    # Request 1 GPU — adjust gres string for your cluster
+    slurm_extra:     "--gres=gpu:v100l:1"
+
+  concoct_run:
+    runtime:   960
+    mem_mb:    125000
+    cpus:      32
+
+  dastool:
+    runtime:   240
+    mem_mb:    125000
+    cpus:      32
+
+# Retry failed jobs once with the same resources
+retries: 1
+
+# Maximum concurrent submitted jobs
+jobs: 50
