@@ -1,6 +1,7 @@
 # Bioinformatics pipeline
 
-This GitHub repository contains code for the bioinformatic analyses used in the paper (to be inserted here)
+This GitHub repository contains data and code for the bioinformatic analyses used in the paper **Methane cycling microbes are important predictors of methylmercury accumulation in rice paddies (Zhang et al. 2026)** ([https://journals.asm.org/doi/full/10.1128/aem.02028-25](https://journals.asm.org/doi/full/10.1128/aem.02028-25))
+
 
 ## Components
 
